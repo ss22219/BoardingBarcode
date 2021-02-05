@@ -24,25 +24,26 @@ var fields = {}
 var run, getDayOfYear
 var ctx = null
 var fieldInfos = [
-    {size: 1,type: "string",value: "",name: "Source of check-in"},
-    {size: 1,type: "string",value: "O",name: "Source of Boarding Pass Issuance"},
+    {size: 1,type: "text",value: "0",name: "Passenger Description"},
+    {size: 1,type: "text",value: "",name: "Source of check-in"},
+    {size: 1,type: "text",value: "O",name: "Source of Boarding Pass Issuance"},
     {size: 4,type: "number",value: "1006",name: "Date of Issue of Boarding Pass (Julian Date)"},
-    {size: 1,type: "string",value: "B",name: "Document Type"},
-    {size: 3,type: "string",value: "SQ",name: "Airline Designator of boarding pass issuer"},
-    {size: 13,type: "string",value: "618320109008",name: "Baggage Tag Licence Plate Number (s)"},
-    {size: 13,type: "string",value: "2A61824329735",name: "1st Non-Consecutive Baggage Tag Licensce Plate Number"},
-    {size: 13,type: "string",value: "850 SQ NZ 453",name: "2nd Non-Consecutive Baggage Tag Licensce Plate Number"},
+    {size: 1,type: "text",value: "B",name: "Document Type"},
+    {size: 3,type: "text",value: "SQ",name: "Airline Designator of boarding pass issuer"},
+    {size: 13,type: "text",value: "618320109008",name: "Baggage Tag Licence Plate Number (s)"},
+    {size: 13,type: "text",value: "2A61824329735",name: "1st Non-Consecutive Baggage Tag Licensce Plate Number"},
+    {size: 13,type: "text",value: "850 SQ NZ 453",name: "2nd Non-Consecutive Baggage Tag Licensce Plate Number"},
     {size: 2,type: "number",value: "59",name: "Field Size of follow ing structured message - repeated"},
-    {size: 3,type: "string",value: "144",name: "Airline Numeric Code"},
-    {size: 10,type: "string",value: "",name: "Document Form/Serial Number"},
-    {size: 1,type: "string",value: "",name: "Selectee indicator"},
-    {size: 1,type: "string",value: "",name: "International Documentation Verification"},
-    {size: 3,type: "string",value: "N*3",name: "Marketing carrier designator"},
+    {size: 3,type: "text",value: "144",name: "Airline Numeric Code"},
+    {size: 10,type: "text",value: "",name: "Document Form/Serial Number"},
+    {size: 1,type: "text",value: "",name: "Selectee indicator"},
+    {size: 1,type: "text",value: "",name: "International Documentation Verification"},
+    {size: 3,type: "text",value: "N*3",name: "Marketing carrier designator"},
     {size: 3,type: "number",value: "60",name: "Frequent Flyer Airline Designator"},
-    {size: 16,type: "string",value: "8140K0E Y",name: "Frequent Flyer Number"},
-    {size: 1,type: "string",value: "",name: "ID/AD Indicator"},
-    {size: 3,type: "string",value: "",name: "Free Baggage Allow ance"},
-    {size: 1,type: "string",value: "",name: "Fast Track"}
+    {size: 16,type: "text",value: "8140K0E Y",name: "Frequent Flyer Number"},
+    {size: 1,type: "text",value: "",name: "ID/AD Indicator"},
+    {size: 3,type: "text",value: "",name: "Free Baggage Allow ance"},
+    {size: 1,type: "text",value: "",name: "Fast Track"}
 ];
 function start() 
 {
@@ -70,7 +71,7 @@ function start()
     for(var k in fieldInfos) {
         var info = fieldInfos[k];
         html += ('<span class="tlabel">'+ info.name +'</span><br>' + 
-            '<input class="ext_input" maxlength='+ info.size +' name="'+info.name+'" type="'+(info.type == 'string' ? 'text' : 'number' )+'" value="'+info.value+'"><br>');
+            '<input class="ext_input" maxlength='+ info.size +' name="'+info.name+'" type="'+ info.type +'" value="'+info.value+'"><br>');
         fields[info.name] = info.value;
     }
     document.getElementById('ext_field').innerHTML = html;
@@ -78,6 +79,7 @@ function start()
     for(var i = 0; i< inputs.length; i++){
         var e = inputs[i];
         bindEvent(e);
+        e.oninput();
     }
     format()
 }
@@ -86,11 +88,12 @@ function bindEvent(el){
     el.oninput = function() {
         var name = el.name;
         var size = el.attributes['maxlength'].value;
+        var type = el.type;
         if(size < el.value.length)
             err('"' + name + '" longer than ' + size + " chars");
         else
         {
-            fields[name] = el.value;
+            fields[name] = type == 'number' ? padLeft(el.value, size) : upPadRight(el.value, size);
             format();
         }
     }
@@ -146,7 +149,7 @@ function format() {
              + ">" //Beginning of version number
              + "5" //Version Number
              + "18"//Field Size of follow ing structured message - unique
-             + "0"//Passenger Description
+             + fields["Passenger Description"]
              + fields["Source of check-in"]
              + fields["Source of Boarding Pass Issuance"]
              + fields["Date of Issue of Boarding Pass (Julian Date)"]
