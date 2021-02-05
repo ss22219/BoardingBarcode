@@ -23,7 +23,27 @@ var fields = {}
 
 var run, getDayOfYear
 var ctx = null
-    
+var fieldInfos = [
+    {size: 1,type: "string",value: "",name: "Source of check-in"},
+    {size: 1,type: "string",value: "O",name: "Source of Boarding Pass Issuance"},
+    {size: 4,type: "number",value: "1006",name: "Date of Issue of Boarding Pass (Julian Date)"},
+    {size: 1,type: "string",value: "B",name: "Document Type"},
+    {size: 3,type: "string",value: "SQ",name: "Airline Designator of boarding pass issuer"},
+    {size: 13,type: "string",value: "618320109008",name: "Baggage Tag Licence Plate Number (s)"},
+    {size: 13,type: "string",value: "2A61824329735",name: "1st Non-Consecutive Baggage Tag Licensce Plate Number"},
+    {size: 13,type: "string",value: "850 SQ NZ 453",name: "2nd Non-Consecutive Baggage Tag Licensce Plate Number"},
+    {size: 2,type: "number",value: "59",name: "Field Size of follow ing structured message - repeated"},
+    {size: 3,type: "string",value: "144",name: "Airline Numeric Code"},
+    {size: 10,type: "string",value: "",name: "Document Form/Serial Number"},
+    {size: 1,type: "string",value: "",name: "Selectee indicator"},
+    {size: 1,type: "string",value: "",name: "International Documentation Verification"},
+    {size: 3,type: "string",value: "N*3",name: "Marketing carrier designator"},
+    {size: 3,type: "number",value: "60",name: "Frequent Flyer Airline Designator"},
+    {size: 16,type: "string",value: "8140K0E Y",name: "Frequent Flyer Number"},
+    {size: 1,type: "string",value: "",name: "ID/AD Indicator"},
+    {size: 3,type: "string",value: "",name: "Free Baggage Allow ance"},
+    {size: 1,type: "string",value: "",name: "Fast Track"}
+];
 function start() 
 {
     run = Module.cwrap('run', null, ['number', 'string', 'number', 'number'])
@@ -45,7 +65,35 @@ function start()
     formatClass()
     formatSeat()
     formatSeqNum()
+
+    var html = '';
+    for(var k in fieldInfos) {
+        var info = fieldInfos[k];
+        html += ('<span class="tlabel">'+ info.name +'</span><br>' + 
+            '<input class="ext_input" maxlength='+ info.size +' name="'+info.name+'" type="'+(info.type == 'string' ? 'text' : 'number' )+'" value="'+info.value+'"><br>');
+        fields[info.name] = info.value;
+    }
+    document.getElementById('ext_field').innerHTML = html;
+    var inputs = document.getElementsByClassName('ext_input');
+    for(var i = 0; i< inputs.length; i++){
+        var e = inputs[i];
+        bindEvent(e);
+    }
     format()
+}
+
+function bindEvent(el){
+    el.oninput = function() {
+        var name = el.name;
+        var size = el.attributes['maxlength'].value;
+        if(size < el.value.length)
+            err('"' + name + '" longer than ' + size + " chars");
+        else
+        {
+            fields[name] = el.value;
+            format();
+        }
+    }
 }
 
 function errclear() {
@@ -99,25 +147,25 @@ function format() {
              + "5" //Version Number
              + "18"//Field Size of follow ing structured message - unique
              + "0"//Passenger Description
-             + upPadRight("",1)//Source of check-in
-             + upPadRight("O",1)//Source of Boarding Pass Issuance
-             + padLeft("1006",4)//Date of Issue of Boarding Pass (Julian Date)
-             + upPadRight("B",1)//Document Type
-             + upPadRight("SQ",3)//Airline Designator of boarding pass issuer
-             + upPadRight("618320109008",13)//Baggage Tag Licence Plate Number (s)
-             + upPadRight("2A61824329735",13)//1st Non-Consecutive Baggage Tag Licensce Plate Number
-             + upPadRight("850 SQ NZ 453",13)//2nd Non-Consecutive Baggage Tag Licensce Plate Number
-             + padLeft("59",2)//Field Size of follow ing structured message - repeated
-             + upPadRight("144",3)//Airline Numeric Code
-             + upPadRight("",10)//Document Form/Serial Number
-             + upPadRight("",1)//Selectee indicator
-             + upPadRight("",1)//International Documentation Verification
-             + upPadRight("N*3",3)//Marketing carrier designator
-             + padLeft("60", 3)//Frequent Flyer Airline Designator
-             + upPadRight("8140K0E Y",16)//Frequent Flyer Number
-             + upPadRight("",1) //ID/AD Indicator
-             + upPadRight("",3)//Free Baggage Allow ance
-             + upPadRight("",1)//Fast Track
+             + fields["Source of check-in"]
+             + fields["Source of Boarding Pass Issuance"]
+             + fields["Date of Issue of Boarding Pass (Julian Date)"]
+             + fields["Document Type"]
+             + fields["Airline Designator of boarding pass issuer"]
+             + fields["Baggage Tag Licence Plate Number (s)"]
+             + fields["1st Non-Consecutive Baggage Tag Licensce Plate Number"]
+             + fields["2nd Non-Consecutive Baggage Tag Licensce Plate Number"]
+             + fields["Field Size of follow ing structured message - repeated"]
+             + fields["Airline Numeric Code"]
+             + fields["Document Form/Serial Number"]
+             + fields["Selectee indicator"]
+             + fields["International Documentation Verification"]
+             + fields["Marketing carrier designator"]
+             + fields["Frequent Flyer Airline Designator"]
+             + fields["Frequent Flyer Number"]
+             + fields["ID/AD Indicator"]
+             + fields["Free Baggage Allow ance"]
+             + fields["Fast Track"]
     update()
 }
 function upPadRight(s, n) {
@@ -318,7 +366,10 @@ input, #classSel {
 <input id="seatNumEd" type="text" value="35A" oninput="formatSeat(true)"><br>
 <span class="unimpCol tlabel">Boarding Index</span><br>
 <input id="seqNumEd" class="unimpCol" type="text" value="0001" oninput="formatSeqNum(true)"><br>
+<div id="ext_field"
+></div>
 </div>
+
 <span class="unimpCol">Raw Data:</span><br>
 <textarea id="textEdit" rows="4" cols="50" class="unimpCol" oninput="update(true)">
 hello</textarea>
