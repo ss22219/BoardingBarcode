@@ -17,7 +17,7 @@ https://en.wikipedia.org/wiki/Aztec_Code
 https://github.com/zint/zint  
 
 ### BCBP standard (the data that goes into a boarding pass)
-http://www.iata.org/whatwedo/stb/documents/bcbp_implementation_guidev4_jun2009.pdf  
+https://tinkrmind.files.wordpress.com/2017/09/bcbp-implementation-guide-5th-edition-june-2016.pdf
 https://shaun.net/whats-contained-in-a-boarding-pass-barcode/  
 
 ### Other useful info  
