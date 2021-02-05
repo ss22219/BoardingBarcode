@@ -93,8 +93,31 @@ function update(fromRaw)
 function format() {
     textIn = "M1" + fields.name + "E" + fields.bookRef + fields.from + fields.to 
              + fields.fOp + fields.fNum + fields.date + fields.cls + fields.seat + fields.seqNum
-             + "1" + "00"
-             // 1 passenger status, 00 - hex length of following data
+             + "1"  //Passenger Status
+             + "62" //Field Size of variable size field (Conditional + Airline item 4)
+             + ">" //Beginning of version number
+             + "5" //Version Number
+             + "18"//Field Size of follow ing structured message - unique
+             + "0"//Passenger Description
+             + upPadRight("",1)//Source of check-in
+             + upPadRight("O",1)//Source of Boarding Pass Issuance
+             + padLeft("1006",4)//Date of Issue of Boarding Pass (Julian Date)
+             + upPadRight("B",1)//Document Type
+             + upPadRight("SQ",3)//Airline Designator of boarding pass issuer
+             + upPadRight("618320109008",13)//Baggage Tag Licence Plate Number (s)
+             + upPadRight("2A61824329735",13)//1st Non-Consecutive Baggage Tag Licensce Plate Number
+             + upPadRight("850 SQ NZ 453",13)//2nd Non-Consecutive Baggage Tag Licensce Plate Number
+             + padLeft("59",2)//Field Size of follow ing structured message - repeated
+             + upPadRight("144",3)//Airline Numeric Code
+             + upPadRight("",10)//Document Form/Serial Number
+             + upPadRight("",1)//Selectee indicator
+             + upPadRight("",1)//International Documentation Verification
+             + upPadRight("N*3",3)//Marketing carrier designator
+             + padLeft("60", 3)//Frequent Flyer Airline Designator
+             + upPadRight("8140K0E Y",16)//Frequent Flyer Number
+             + upPadRight("",1) //ID/AD Indicator
+             + upPadRight("",3)//Free Baggage Allow ance
+             + upPadRight("",1)//Fast Track
     update()
 }
 function upPadRight(s, n) {
